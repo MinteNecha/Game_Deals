@@ -1,5 +1,5 @@
-const games = [  
-    {
+[
+  {
     "id": 1,
     "title": "Hollow Knight",
     "normalPrice": 14.99,
