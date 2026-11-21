@@ -1,5 +1,6 @@
 import { getDiscountPercentage, searchByTitle, getGamesOnSale } from "./deals.js";
 
+const cheapSharkLinke = "https://www.cheapshark.com/api/1.0/deals?pageSize=12";
 let allGames = [];
 
 async function loadGames(){
@@ -55,7 +56,28 @@ function updateDisplay(){
         document.getElementById("games-list").innerHTML = renderGames(filteredGames);
 }
 
+function mapCheapSharkDeal(deal){
+    return {
+        id: deal.dealID,
+        title: deal.title,
+        normalPrice: parseFloat(deal.normalPrice),
+        salePrice: parseFloat(deal.salePrice),
+        store: `Store ${deal.storeID}`
+    };   
+}
+
+async function loadCheapSharkDeals(){
+    try {
+        const response = await fetch(cheapSharkLinke);
+        const rawDeals = await response.json();
+        const mappedGames = rawDeals.map(mapCheapSharkDeal);
+        document.getElementById("cheapshark-list").innerHTML = renderGames(mappedGames);
+    } catch (error) {
+        console.error("Failed to load CheapShark deals:", error);
+    }
+}
 
 document.addEventListener("DOMContentLoaded", init);    
+document.addEventListener("DOMContentLoaded", loadCheapSharkDeals);
 document.getElementById("search-input").addEventListener("input", updateDisplay);
 document.getElementById("on-sale-only").addEventListener("change", updateDisplay);            
