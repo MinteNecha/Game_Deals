@@ -36,8 +36,8 @@ function renderGames(games){
                 </div>
                 <p class="store">${game.store}</p>
                 <p class="price">
-                    ${onSale ? `<span class="original-price">R${game.normalPrice}</span>` : ""}
-                    <span class="sale-price">R${game.salePrice}</span>
+                    ${onSale ? `<span class="original-price">R${game.normalPrice.toFixed(2)}</span>` : ""}
+                    <span class="sale-price">R${game.salePrice.toFixed(2)}</span>
                     ${onSale ? `<span class="discount">(${discount}% off)</span>` : ""}
                 </p>
             </div>`;
@@ -61,25 +61,25 @@ function updateDisplay(){
         document.getElementById("games-list").innerHTML = renderGames(filteredGames);
 }
 
-function mapCheapSharkDeal(deal, storeLookup){
+function mapCheapSharkDeal(deal, storeLookup, exchangeRate){
     return {
         id: deal.dealID,
         title: deal.title,
-        normalPrice: parseFloat(deal.normalPrice),
-        salePrice: parseFloat(deal.salePrice),
+        normalPrice: Math.round(parseFloat(deal.normalPrice) * exchangeRate * 100) / 100,
+        salePrice: Math.round(parseFloat(deal.salePrice) * exchangeRate * 100) / 100,
         store: storeLookup[deal.storeID] || "Unknown Store"
-        };   
+    };
 }
 
 async function loadCheapSharkDeals(){
     try {
-        const [dealsResponse, storesResponse]  = await Promise.all([fetch(cheapSharkLink), fetch(storeNameLink)]);
+        const [dealsResponse, storesResponse, exchangeRate]  = await Promise.all([fetch(cheapSharkLink), fetch(storeNameLink), getExchangeRate()]);
         const rawDeals = await dealsResponse.json();
         const rawStores = await storesResponse.json();
 
         const lookup = storeLookup(rawStores);
 
-        const mappedGames = rawDeals.map(deal => mapCheapSharkDeal(deal, lookup));        document.getElementById("cheapshark-list").innerHTML = renderGames(mappedGames);
+        const mappedGames = rawDeals.map(deal => mapCheapSharkDeal(deal, lookup, exchangeRate));        document.getElementById("cheapshark-list").innerHTML = renderGames(mappedGames);
     } catch (error) {
         console.error("Failed to load CheapShark deals:", error);
     }
