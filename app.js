@@ -1,6 +1,7 @@
 import { getDiscountPercentage, searchByTitle, getGamesOnSale } from "./deals.js";
 
-const cheapSharkLinke = "https://www.cheapshark.com/api/1.0/deals?pageSize=12";
+const cheapSharkLink = "https://www.cheapshark.com/api/1.0/deals?pageSize=12";
+const storeNameLink = "https://www.cheapshark.com/api/1.0/stores";
 let allGames = [];
 
 async function loadGames(){
@@ -56,25 +57,35 @@ function updateDisplay(){
         document.getElementById("games-list").innerHTML = renderGames(filteredGames);
 }
 
-function mapCheapSharkDeal(deal){
+function mapCheapSharkDeal(deal, storeLookup){
     return {
         id: deal.dealID,
         title: deal.title,
         normalPrice: parseFloat(deal.normalPrice),
         salePrice: parseFloat(deal.salePrice),
-        store: `Store ${deal.storeID}`
-    };   
+        store: storeLookup[deal.storeID] || "Unknown Store"
+        };   
 }
 
 async function loadCheapSharkDeals(){
     try {
-        const response = await fetch(cheapSharkLinke);
-        const rawDeals = await response.json();
-        const mappedGames = rawDeals.map(mapCheapSharkDeal);
-        document.getElementById("cheapshark-list").innerHTML = renderGames(mappedGames);
+        const [dealsResponse, storesResponse]  = await Promise.all([fetch(cheapSharkLink), fetch(storeNameLink)]);
+        const rawDeals = await dealsResponse.json();
+        const rawStores = await storesResponse.json();
+
+        const lookup = storeLookup(rawStores);
+
+        const mappedGames = rawDeals.map(deal => mapCheapSharkDeal(deal, lookup));        document.getElementById("cheapshark-list").innerHTML = renderGames(mappedGames);
     } catch (error) {
         console.error("Failed to load CheapShark deals:", error);
     }
+}
+
+function storeLookup(stores){
+    return stores.reduce(function (accumulator, store) {
+        accumulator[store.storeID] = store.storeName;
+        return accumulator;
+    }, {});
 }
 
 document.addEventListener("DOMContentLoaded", init);    
