@@ -1,4 +1,6 @@
-import { getDiscountPercentage } from "./deals.js";
+import { getDiscountPercentage, searchByTitle, getGamesOnSale } from "./deals.js";
+
+let allGames = [];
 
 async function loadGames(){
     const response = await fetch("data.json");
@@ -9,8 +11,8 @@ async function loadGames(){
 
 async function init(){
     try{
-        const games = await loadGames();
-        document.getElementById("games-list").innerHTML = renderGames(games);
+        allGames = await loadGames();
+        updateDisplay();
     }
     catch(error){
         console.error("Failed to load game deals:", error);
@@ -29,5 +31,23 @@ function renderGames(games){
         ).join("");
 }
 
+function updateDisplay(){
+        let query = document.getElementById("search-input").value;
+        let onlyOnSale = document.getElementById("on-sale-only").checked;
 
-document.addEventListener("DOMContentLoaded", init);                
+        let filteredGames = allGames;
+
+        if(query !== ""){
+            filteredGames = searchByTitle(allGames, query);
+        }
+        if(onlyOnSale){
+            filteredGames = getGamesOnSale(filteredGames);
+        }
+
+        document.getElementById("games-list").innerHTML = renderGames(filteredGames);
+}
+
+
+document.addEventListener("DOMContentLoaded", init);    
+document.getElementById("search-input").addEventListener("input", updateDisplay);
+document.getElementById("on-sale-only").addEventListener("change", updateDisplay);            
