@@ -21,13 +21,21 @@ async function init(){
 
 function renderGames(games){
     return games.map(
-        game => 
-            `<div class="game-card">
-            <p>
-            ${game.title} selling for ${game.salePrice} at ${game.store}.
-             ${getDiscountPercentage(game) > 0 ? `<span class="tag">ON SALE!</span>`: ""}
-            </p>
-            </div>`
+        game => {
+            const onSale = getDiscountPercentage(game) > 0;
+            return `
+            <div class="game-card">
+                <div class="card-header">
+                    <h2>${game.title}</h2>
+                    ${onSale ? `<span class="tag">ON SALE</span>` : ""}
+                </div>
+                <p class="store">${game.store}</p>
+                <p class="price">
+                    ${onSale ? `<span class="original-price">R${game.normalPrice}</span>` : ""}
+                    <span class="sale-price">R${game.salePrice}</span>
+                </p>
+            </div>`;
+        }
         ).join("");
 }
 
