@@ -17,3 +17,13 @@ export function findCheapestGame(games){
     )
 }
 
+export function searchByTitle(games, query){
+    query = query.toLowerCase();
+    return games.filter(
+            function(game){
+                let gameTitle = (game.title).toLowerCase();
+
+                return gameTitle.includes(query);
+            }
+        )
+}
