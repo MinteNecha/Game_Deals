@@ -19,7 +19,13 @@ async function init(){
 
 function renderGames(games){
     return games.map(
-        game => `<p>${game.title} selling for ${game.salePrice} at ${game.store}. ${getDiscountPercentage(game) > 0 ? "ON SALE" : ""}</p>`
+        game => 
+            `<div class="game-card">
+            <p>
+            ${game.title} selling for ${game.salePrice} at ${game.store}.
+             ${getDiscountPercentage(game) > 0 ? `<span class="tag">ON SALE!</span>`: ""}
+            </p>
+            </div>`
         ).join("");
 }
 
