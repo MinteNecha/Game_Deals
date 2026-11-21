@@ -24,7 +24,8 @@ async function init(){
 function renderGames(games){
     return games.map(
         game => {
-            const onSale = getDiscountPercentage(game) > 0;
+            const discount = getDiscountPercentage(game);
+            const onSale = discount > 0;
             return `
             <div class="game-card">
                 <div class="card-header">
@@ -35,6 +36,7 @@ function renderGames(games){
                 <p class="price">
                     ${onSale ? `<span class="original-price">R${game.normalPrice}</span>` : ""}
                     <span class="sale-price">R${game.salePrice}</span>
+                    ${onSale ? `<span class="discount">(${discount}% off)</span>` : ""}
                 </p>
             </div>`;
         }
