@@ -2,6 +2,8 @@ import { getDiscountPercentage, searchByTitle, getGamesOnSale } from "./deals.js
 
 const cheapSharkLink = "https://www.cheapshark.com/api/1.0/deals?pageSize=12";
 const storeNameLink = "https://www.cheapshark.com/api/1.0/stores";
+const currencyUSRate = "https://open.er-api.com/v6/latest/USD";
+const FALLBACK_USD_TO_ZAR = 18;
 let allGames = [];
 
 async function loadGames(){
@@ -88,6 +90,17 @@ function storeLookup(stores){
         accumulator[store.storeID] = store.storeName;
         return accumulator;
     }, {});
+}
+
+async function getExchangeRate(){
+    try {
+        const response = await fetch(currencyUSRate);
+        const data = await response.json();
+        return data.rates.ZAR;
+    } catch (error) {
+        console.error("Failed to fetch exchange rate, using fallback:", error);
+        return FALLBACK_USD_TO_ZAR;
+    }
 }
 
 document.addEventListener("DOMContentLoaded", init);    
